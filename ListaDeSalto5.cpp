@@ -24,6 +24,15 @@ struct No{
         this->chave=k;
         this->info=v;
     }
+    No(int k)
+    {
+        for(int i=0;i<3;i++)
+        {
+            this->prox[i] = NULL;
+            this->ant[i] = NULL;
+        }
+        this->chave=k;
+    }
 };
 
 template<typename T>
@@ -103,6 +112,51 @@ void mostraLista(Lista<T> L)
         printf("%i -> NULL\n", aux->chave);
     }
 }
+
+template<typename T>
+bool busca(Lista<T> L, No<T>& N)
+{
+    int nivel=2;
+    No<T>* aux, *ant;
+    aux = L.inicio[nivel];
+    ant=L.inicio[nivel-1];
+        while ( nivel>=0)
+        {
+            if(aux==NULL)//Se chegou no final da lista no nivel atual -> desce o nivel
+            {
+                nivel--;
+                aux = ant;
+                continue;
+            }
+            if(aux->chave==N.chave)//Se achou ->retorna
+            {
+                N = *aux;
+                return true;
+            }
+            if(aux->chave>N.chave)//Se passou -> volta 1 e desce de nivel
+            {
+                aux = ant;
+                if(ant==L.inicio[nivel-1]){//se não andou
+                    if(nivel==2) //E se da pra descer
+                        ant = L.inicio[nivel-2];
+                }
+                else ant = ant->ant[nivel];//Se andou, volta 1
+                
+                nivel--;
+                continue;
+            }
+            ant = aux;
+            aux = aux->prox[nivel];
+        }
+    return false;
+}
+
+template<typename T>
+bool busca(Lista<T> L, int chave)
+{
+    No<T> busc(chave);
+    return busca(L,busc);
+}
 int main()
 {
     Lista<int> L;
@@ -111,6 +165,8 @@ int main()
     Insere(L, 5,0);
     Insere(L, 20,1);
     Insere(L, 40,1);
+    Insere(L,42,0);
     mostraLista(L);
+    if(busca(L,0)) printf("Achou\n");
     return 0;
 }
