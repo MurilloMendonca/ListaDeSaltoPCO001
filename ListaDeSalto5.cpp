@@ -59,6 +59,7 @@ void Insere(Lista<T>& L, No<T>*& novo, int nivel)
     if (L.inicio[nivel] == NULL)
     {
         L.inicio[nivel] = novo;
+        L.fim[nivel] = novo;
     }
     else
     {
@@ -69,7 +70,7 @@ void Insere(Lista<T>& L, No<T>*& novo, int nivel)
             Ant = Aux;
             Aux = Aux->prox[nivel];
         }
-        if (Ant == NULL)
+        if (Ant == NULL)//Se nao andou
         {
             novo->prox[nivel] = L.inicio[nivel];
             novo->ant[nivel] = NULL;
@@ -80,6 +81,7 @@ void Insere(Lista<T>& L, No<T>*& novo, int nivel)
         {
             novo->prox[nivel] = Ant->prox[nivel];
             novo->ant[nivel] = Ant;
+            if(Ant->prox[nivel] == NULL) L.fim[nivel] = novo;
             if (Ant->prox[nivel] != NULL)novo->prox[nivel]->ant[nivel] = novo;
             Ant->prox[nivel] = novo;
         }
@@ -112,9 +114,24 @@ void mostraLista(Lista<T> L)
         printf("%i -> NULL\n", aux->chave);
     }
 }
-
 template<typename T>
-bool busca(Lista<T> L, No<T>& N)
+void mostraListaReversa(Lista<T> L)
+{
+    No<T>* aux;
+    for(int i=0; i<3;i++){
+        printf("\n Nivel %i: ", i);
+        aux = L.fim[i];
+        if(aux==NULL) continue;
+        while (aux->ant[i] != NULL)
+        {
+            printf("%i <-> ", aux->chave);
+            aux = aux->ant[i];
+        }
+        printf("%i -> NULL\n", aux->chave);
+    }
+}
+template<typename T>
+bool busca(Lista<T> L, No<T>*& N)
 {
     int nivel=2;
     No<T>* aux, *ant;
@@ -128,12 +145,13 @@ bool busca(Lista<T> L, No<T>& N)
                 aux = ant;
                 continue;
             }
-            if(aux->chave==N.chave)//Se achou ->retorna
+            if(aux->chave==N->chave)//Se achou ->retorna
             {
-                N = *aux;
+                delete N;
+                N = aux;
                 return true;
             }
-            if(aux->chave>N.chave)//Se passou -> volta 1 e desce de nivel
+            if(aux->chave>N->chave)//Se passou -> volta 1 e desce de nivel
             {
                 aux = ant;
                 if(ant==L.inicio[nivel-1]){//se não andou
@@ -154,9 +172,58 @@ bool busca(Lista<T> L, No<T>& N)
 template<typename T>
 bool busca(Lista<T> L, int chave)
 {
-    No<T> busc(chave);
+    No<T>* busc = new No<T>(chave);
     return busca(L,busc);
 }
+template<typename T>
+void remove(Lista<T>&L, No<T>*N, int nivel)
+{
+    if(N->ant[nivel]==NULL)//primeiro no
+    {
+        L.inicio[nivel] = N->prox[nivel];
+    }
+    else
+    {
+        N->ant[nivel]->prox[nivel] = N->prox[nivel];
+        
+    }
+    if(N->prox[nivel]==NULL)//ultimo no
+    {
+        L.fim[nivel] = N->ant[nivel];
+    }
+    else
+    {
+        N->prox[nivel]->ant[nivel] = N->ant[nivel];
+    }
+
+}
+template<typename T>
+bool remove(Lista<T>&L, No<T>&N)
+{
+    No<T>* aux = new No<T>(N.chave);
+    if(!busca(L,aux))
+    {
+        delete aux;
+        return false;
+    }
+    remove(L, aux, 0);
+    if(aux->chave%5==0)
+        remove(L,aux,1);
+    if(aux->chave%20==0)
+        remove(L,aux,2);
+    delete aux;
+    return true;
+    
+}
+
+template<typename T>
+bool remove(Lista<T>&L, int chave)
+{
+    No<T> rem(chave);
+    return remove(L, rem);
+}
+
+
 int main()
 {
     Lista<int> L;
@@ -166,7 +233,15 @@ int main()
     Insere(L, 20,1);
     Insere(L, 40,1);
     Insere(L,42,0);
+    printf("Antes");
     mostraLista(L);
-    if(busca(L,0)) printf("Achou\n");
+    remove(L,40);
+    printf("Depois");
+    mostraLista(L);
+    /* printf("Direto:");
+    mostraLista(L);
+    printf("Reverso:");
+    mostraListaReversa(L);//Pra conferir se os ponteiros do fim e ant estao funcionando
+    if(busca(L,5)) printf("Achou\n"); */
     return 0;
 }
