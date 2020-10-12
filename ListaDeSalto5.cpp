@@ -91,6 +91,7 @@ template<typename T>
 void Insere(Lista<T>& L, int chave, T valor)
 {
     No<T>* NovoPtr = new No<T>(chave, valor);
+    L.tam++;
     Insere(L, NovoPtr, 0);
     if(chave%5==0)
         Insere(L,NovoPtr, 1);
@@ -206,6 +207,7 @@ bool remove(Lista<T>&L, No<T>&N)
         delete aux;
         return false;
     }
+    L.tam--;
     remove(L, aux, 0);
     if(aux->chave%5==0)
         remove(L,aux,1);
@@ -233,15 +235,15 @@ int main()
     Insere(L, 20,1);
     Insere(L, 40,1);
     Insere(L,42,0);
+    printf("\nLista de tamnho: %i\n", L.tam);
     printf("Antes");
     mostraLista(L);
     remove(L,40);
     printf("Depois");
     mostraLista(L);
-    /* printf("Direto:");
-    mostraLista(L);
     printf("Reverso:");
     mostraListaReversa(L);//Pra conferir se os ponteiros do fim e ant estao funcionando
-    if(busca(L,5)) printf("Achou\n"); */
+    printf("\nLista de tamnho: %i\n", L.tam);
+    //if(busca(L,5)) printf("Achou\n"); 
     return 0;
 }
